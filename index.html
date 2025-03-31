@@ -72,6 +72,7 @@
     <script>
         // Initialize EmailJS
         emailjs.init('hKShQgh_qV8dnGDrn'); // Replace 'YOUR_USER_ID' with your EmailJS user ID
+        console.log('EmailJS initialized:', emailjs);
 
         document.getElementById('receiptForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the default form submission
@@ -99,7 +100,7 @@
                     console.log('SUCCESS!', response.status, response.text);
                 }, function(error) {
                     alert('Failed to send receipt. Please try again.');
-                    console.log('FAILED...', error);
+                    console.error('FAILED...', error);
                 });
         });
     </script>
