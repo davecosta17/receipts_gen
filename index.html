@@ -43,7 +43,7 @@
 </head>
 <body>
     <h1>Receipt Form</h1>
-    <form id="receiptForm" onsubmit="generatePDF(); return false;">
+    <form id="receiptForm">
         <label for="customerName">Customer Name:</label>
         <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
 
@@ -68,105 +68,40 @@
         <button type="submit">Generate Receipt</button>
     </form>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"></script>
     <script>
-        emailjs.init('YOUR_USER_ID'); // Replace with your EmailJS user ID
+        // Initialize EmailJS
+        emailjs.init('hKShQgh_qV8dnGDrn'); // Replace 'YOUR_USER_ID' with your EmailJS user ID
 
-        // Ensure "Amount Paid" accepts only positive integers
-        const amountPaidInput = document.getElementById('amountPaid');
+        document.getElementById('receiptForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
 
-        amountPaidInput.addEventListener('input', (event) => {
-            // Remove any non-numeric characters
-            event.target.value = event.target.value.replace(/[^0-9]/g, '');
+            // Collect form values
+            const customerName = document.getElementById('customerName').value;
+            const bookingInfo = document.getElementById('bookingInfo').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const amountPaid = document.getElementById('amountPaid').value;
+            const email = document.getElementById('email').value;
+
+            // Prepare the template parameters
+            const templateParams = {
+                customer_name: customerName,
+                booking_info: bookingInfo,
+                payment_method: paymentMethod,
+                amount_paid: amountPaid,
+                to_email: email
+            };
+
+            // Send the email using EmailJS
+            emailjs.send('service_i1zeb8n', 'template_hp4s49g', templateParams)
+                .then(function(response) {
+                    alert('Receipt sent successfully!');
+                    console.log('SUCCESS!', response.status, response.text);
+                }, function(error) {
+                    alert('Failed to send receipt. Please try again.');
+                    console.log('FAILED...', error);
+                });
         });
-
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Gather data from the form
-            const customerName = document.getElementById('customerName').value;
-            const bookingInfo = document.getElementById('bookingInfo').value;
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const amountPaid = document.getElementById('amountPaid').value;
-            const email = document.getElementById('email').value;
-
-            // Get the current date and time
-            const now = new Date();
-            const dateString = now.toLocaleString(); // e.g., "3/31/2025, 2:30:45 PM"
-            const receiptNumber = now.getFullYear().toString() +
-                                  (now.getMonth() + 1).toString().padStart(2, '0') +
-                                  now.getDate().toString().padStart(2, '0') +
-                                  now.getHours().toString().padStart(2, '0') +
-                                  now.getMinutes().toString().padStart(2, '0') +
-                                  now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
-
-            // Add Receipt Content
-            doc.setFontSize(20);
-            doc.text('Receipt', 10, 10);
-            doc.setFontSize(12);
-            doc.text(`Receipt No.: ${receiptNumber}`, 10, 20);
-            doc.text(`Date: ${dateString}`, 10, 30);
-            doc.text(`Customer Name: ${customerName}`, 10, 40);
-            doc.text(`Payment Method: ${paymentMethod}`, 10, 50);
-            doc.text(`Amount Paid: GHC${amountPaid}`, 10, 60);
-            doc.text(`Booking Details: ${bookingInfo}`, 10, 70);
-
-            // Convert the PDF to a Base64 string
-            const pdfBase64 = doc.output('datauristring');
-
-            // Send the email with the form data and PDF attachment
-            emailjs.send('service_i1zeb8n', 'template_hp4s49g', {
-                to_email: email,
-                receipt_number: receiptNumber,
-                customer_name: customerName,
-                payment_method: paymentMethod,
-                amount_paid: `GHC${amountPaid}`,
-                booking_info: bookingInfo,
-                pdf_attachment: pdfBase64
-            }).then(() => {
-                alert('Receipt sent successfully!');
-            }).catch((error) => {
-                console.error('Error sending email:', error);
-                alert('Failed to send receipt. Please try again.');
-            });
-        }
-
-        function sendEmail() {
-            // Gather data from the form
-            const customerName = document.getElementById('customerName').value;
-            const bookingInfo = document.getElementById('bookingInfo').value;
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const amountPaid = document.getElementById('amountPaid').value;
-            const email = document.getElementById('email').value;
-
-            // Get the current date and time
-            const now = new Date();
-            const dateString = now.toLocaleString(); // e.g., "3/31/2025, 2:30:45 PM"
-            const receiptNumber = now.getFullYear().toString() +
-                                  (now.getMonth() + 1).toString().padStart(2, '0') +
-                                  now.getDate().toString().padStart(2, '0') +
-                                  now.getHours().toString().padStart(2, '0') +
-                                  now.getMinutes().toString().padStart(2, '0') +
-                                  now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
-
-            // Send the email with the form data
-            emailjs.send('service_i1zeb8n', 'template_hp4s49g', {
-                to_email: email,
-                receipt_number: receiptNumber,
-                customer_name: customerName,
-                payment_method: paymentMethod,
-                amount_paid: amountPaid, // Send the raw integer value
-                booking_info: bookingInfo,
-                date_time: dateString // Include date and time in the email template
-            }).then(() => {
-                alert('Receipt sent successfully!');
-            }).catch((error) => {
-                console.error('Error sending email:', error);
-                alert('Failed to send receipt. Please try again.');
-            });
-        }
     </script>
 </body>
 </html>
