@@ -74,38 +74,47 @@
         (function(){
             emailjs.init({
                 publicKey: 'hKShQgh_qV8dnGDrn'}); // Replace 'YOUR_USER_ID' with your EmailJS user ID
-        console.log('EmailJS initialized:', emailjs);
+            console.log('EmailJS initialized:', emailjs);
 
-        document.getElementById('receiptForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+            document.getElementById('receiptForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
 
-            // Collect form values
-            const customerName = document.getElementById('customerName').value;
-            const bookingInfo = document.getElementById('bookingInfo').value;
-            const paymentMethod = document.getElementById('paymentMethod').value;
-            const amountPaid = document.getElementById('amountPaid').value;
-            const email = document.getElementById('email').value;
+                // Collect form values
+                const customerName = document.getElementById('customerName').value;
+                const bookingInfo = document.getElementById('bookingInfo').value;
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const amountPaid = document.getElementById('amountPaid').value;
+                const email = document.getElementById('email').value;
 
-            // Prepare the template parameters
-            const templateParams = {
-                customer_name: customerName,
-                booking_info: bookingInfo,
-                payment_method: paymentMethod,
-                amount_paid: amountPaid,
-                to_email: email
-            };
+                // Get the current date and time
+                const now = new Date();
+                const dateString = now.toLocaleString(); // e.g., "3/31/2025, 10:30:00 AM"
+                const receiptNumber = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`; // e.g., "20250331103000"
 
-            // Send the email using EmailJS
-            emailjs.send('service_i1zeb8n', 'template_hp4s49g', templateParams)
-                .then(function(response) {
-                    alert('Receipt sent successfully!');
-                    console.log('SUCCESS!', response.status, response.text);
-                }, function(error) {
-                    alert('Failed to send receipt. Please try again.');
-                    console.error('FAILED...', error);
-                });
-        });
-    })();
+                // Prepare the template parameters
+                const templateParams = {
+                    customer_name: customerName,
+                    booking_info: bookingInfo,
+                    payment_method: paymentMethod,
+                    amount_paid: amountPaid,
+                    to_email: email,
+                    date_time: dateString,
+                    receipt_number: receiptNumber
+                };
+
+                console.log('Template Parameters:', templateParams);
+
+                // Send the email using EmailJS
+                emailjs.send('service_i1zeb8n', 'template_hp4s49g', templateParams)
+                    .then(function(response) {
+                        alert('Receipt sent successfully!');
+                        console.log('SUCCESS!', response.status, response.text);
+                    }, function(error) {
+                        alert('Failed to send receipt. Please try again.');
+                        console.error('FAILED...', error);
+                    });
+            });
+        })();
     </script>
 </body>
 </html>
