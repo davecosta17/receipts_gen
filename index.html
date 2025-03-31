@@ -117,7 +117,7 @@
             const pdfBase64 = doc.output('datauristring');
 
             // Send the email with the form data and PDF attachment
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+            emailjs.send('service_i1zeb8n', 'template_hp4s49g', {
                 to_email: email,
                 receipt_number: receiptNumber,
                 customer_name: customerName,
@@ -152,7 +152,7 @@
                                   now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
 
             // Send the email with the form data
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+            emailjs.send('service_i1zeb8n', 'template_hp4s49g', {
                 to_email: email,
                 receipt_number: receiptNumber,
                 customer_name: customerName,
