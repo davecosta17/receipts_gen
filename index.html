@@ -61,37 +61,24 @@
 
         <label for="amountPaid">Amount Paid:</label>
         <input type="text" id="amountPaid" name="amountPaid" placeholder="Enter amount paid" required>
-        
+
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" placeholder="Enter email address" required>
+
         <button type="submit">Generate Receipt</button>
     </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
     <script>
-        // Ensure "Amount Paid" accepts and formats as Ghana Cedis
+        emailjs.init('YOUR_USER_ID'); // Replace with your EmailJS user ID
+
+        // Ensure "Amount Paid" accepts only positive integers
         const amountPaidInput = document.getElementById('amountPaid');
 
         amountPaidInput.addEventListener('input', (event) => {
-            // Remove any non-numeric characters except for the decimal point
-            let value = event.target.value.replace(/[^\d.]/g, '');
-
-            // Ensure only one decimal point is allowed
-            if (value.split('.').length > 2) {
-                value = value.replace(/\.+$/, '');
-            }
-
-            // Format the value as currency (Ghana Cedis)
-            if (value) {
-                event.target.value = `₵${value}`;
-            } else {
-                event.target.value = ''; // Clear the field if input is invalid
-            }
-        });
-
-        amountPaidInput.addEventListener('blur', (event) => {
-            // Remove the currency symbol if the field is empty
-            if (event.target.value === '₵') {
-                event.target.value = '';
-            }
+            // Remove any non-numeric characters
+            event.target.value = event.target.value.replace(/[^0-9]/g, '');
         });
 
         function generatePDF() {
@@ -103,6 +90,7 @@
             const bookingInfo = document.getElementById('bookingInfo').value;
             const paymentMethod = document.getElementById('paymentMethod').value;
             const amountPaid = document.getElementById('amountPaid').value;
+            const email = document.getElementById('email').value;
 
             // Get the current date and time
             const now = new Date();
@@ -114,56 +102,70 @@
                                   now.getMinutes().toString().padStart(2, '0') +
                                   now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
 
-            // Add a logo (optional, replace with your logo URL)
-            const logoImage = new Image();
-            logoImage.src = './Picture6.png'; // Path to your local image
-            logoImage.onload = function () {
-                const canvas = document.createElement('canvas');
-                canvas.width = logoImage.width;
-                canvas.height = logoImage.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(logoImage, 0, 0);
-                const logoBase64 = canvas.toDataURL('image/png'); // Convert to Base64
+            // Add Receipt Content
+            doc.setFontSize(20);
+            doc.text('Receipt', 10, 10);
+            doc.setFontSize(12);
+            doc.text(`Receipt No.: ${receiptNumber}`, 10, 20);
+            doc.text(`Date: ${dateString}`, 10, 30);
+            doc.text(`Customer Name: ${customerName}`, 10, 40);
+            doc.text(`Payment Method: ${paymentMethod}`, 10, 50);
+            doc.text(`Amount Paid: GHC${amountPaid}`, 10, 60);
+            doc.text(`Booking Details: ${bookingInfo}`, 10, 70);
 
-                // Add the logo to the PDF
-                doc.addImage(logoBase64, 'PNG', 10, 10, 70, 20);
+            // Convert the PDF to a Base64 string
+            const pdfBase64 = doc.output('datauristring');
 
-                // Add Receipt Header
-                doc.setFontSize(20);
-                doc.setTextColor(0, 0, 0);
-               // doc.text('Ghost Tech', 70, 20); // Centered header
-                doc.setFontSize(12);
-                doc.text(`Receipt No.: ${receiptNumber}`, 10, 40);
-                doc.text(`Date: ${dateString}`, 150, 40);
+            // Send the email with the form data and PDF attachment
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+                to_email: email,
+                receipt_number: receiptNumber,
+                customer_name: customerName,
+                payment_method: paymentMethod,
+                amount_paid: `GHC${amountPaid}`,
+                booking_info: bookingInfo,
+                pdf_attachment: pdfBase64
+            }).then(() => {
+                alert('Receipt sent successfully!');
+            }).catch((error) => {
+                console.error('Error sending email:', error);
+                alert('Failed to send receipt. Please try again.');
+            });
+        }
 
-                // Add Summary Section
-                doc.setFontSize(16);
-                doc.setTextColor(0, 0, 0);
-                doc.text('SUMMARY', 10, 60);
+        function sendEmail() {
+            // Gather data from the form
+            const customerName = document.getElementById('customerName').value;
+            const bookingInfo = document.getElementById('bookingInfo').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const amountPaid = document.getElementById('amountPaid').value;
+            const email = document.getElementById('email').value;
 
-                // Add Customer Details
-                doc.setFontSize(12);
-                doc.text('CUSTOMER NAME:', 10, 80);
-                doc.text(customerName, 60, 80);
+            // Get the current date and time
+            const now = new Date();
+            const dateString = now.toLocaleString(); // e.g., "3/31/2025, 2:30:45 PM"
+            const receiptNumber = now.getFullYear().toString() +
+                                  (now.getMonth() + 1).toString().padStart(2, '0') +
+                                  now.getDate().toString().padStart(2, '0') +
+                                  now.getHours().toString().padStart(2, '0') +
+                                  now.getMinutes().toString().padStart(2, '0') +
+                                  now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
 
-                doc.text('PAYMENT METHOD:', 10, 90);
-                doc.text(paymentMethod, 60, 90);
-
-                doc.text('AMOUNT PAID:', 10, 100);
-                doc.text(`GHC${amountPaid}`, 60, 100);
-
-                doc.text('BOOKING DETAILS:', 10, 110);
-                doc.text(bookingInfo, 60, 110, { maxWidth: 130 }); // Wrap text if it's too long
-
-                // Add Footer
-                doc.setFontSize(12);
-                doc.setTextColor(100);
-                doc.text('Thank you for booking with us!', 10, 140);
-                doc.text('If you have any questions, contact us at [EMAIL] or call at [PHONE]', 10, 150);
-
-                // Save the PDF
-                doc.save(`receipt_${receiptNumber}.pdf`);
-            };
+            // Send the email with the form data
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+                to_email: email,
+                receipt_number: receiptNumber,
+                customer_name: customerName,
+                payment_method: paymentMethod,
+                amount_paid: amountPaid, // Send the raw integer value
+                booking_info: bookingInfo,
+                date_time: dateString // Include date and time in the email template
+            }).then(() => {
+                alert('Receipt sent successfully!');
+            }).catch((error) => {
+                console.error('Error sending email:', error);
+                alert('Failed to send receipt. Please try again.');
+            });
         }
     </script>
 </body>
