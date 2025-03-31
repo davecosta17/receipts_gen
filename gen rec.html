@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Form</title>
+    <link rel="icon" href="./tab_icon.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Receipt Form</h1>
+    <form id="receiptForm" onsubmit="generatePDF(); return false;">
+        <label for="customerName">Customer Name:</label>
+        <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
+
+        <label for="bookingInfo">Booking Information:</label>
+        <input type="text" id="bookingInfo" name="bookingInfo" placeholder="Enter booking details" required>
+
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" required>
+            <option value="">Select payment method</option>
+            <option value="creditCard">Credit Card</option>
+            <option value="debitCard">Debit Card</option>
+            <option value="cash">Cash</option>
+            <option value="online">Online Payment</option>
+        </select>
+
+        <label for="amountPaid">Amount Paid:</label>
+        <input type="text" id="amountPaid" name="amountPaid" placeholder="Enter amount paid" required>
+        
+        <button type="submit">Generate Receipt</button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        // Ensure "Amount Paid" accepts and formats as Ghana Cedis
+        const amountPaidInput = document.getElementById('amountPaid');
+
+        amountPaidInput.addEventListener('input', (event) => {
+            // Remove any non-numeric characters except for the decimal point
+            let value = event.target.value.replace(/[^\d.]/g, '');
+
+            // Ensure only one decimal point is allowed
+            if (value.split('.').length > 2) {
+                value = value.replace(/\.+$/, '');
+            }
+
+            // Format the value as currency (Ghana Cedis)
+            if (value) {
+                event.target.value = `₵${value}`;
+            } else {
+                event.target.value = ''; // Clear the field if input is invalid
+            }
+        });
+
+        amountPaidInput.addEventListener('blur', (event) => {
+            // Remove the currency symbol if the field is empty
+            if (event.target.value === '₵') {
+                event.target.value = '';
+            }
+        });
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Gather data from the form
+            const customerName = document.getElementById('customerName').value;
+            const bookingInfo = document.getElementById('bookingInfo').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const amountPaid = document.getElementById('amountPaid').value;
+
+            // Get the current date and time
+            const now = new Date();
+            const dateString = now.toLocaleString(); // e.g., "3/31/2025, 2:30:45 PM"
+            const receiptNumber = now.getFullYear().toString() +
+                                  (now.getMonth() + 1).toString().padStart(2, '0') +
+                                  now.getDate().toString().padStart(2, '0') +
+                                  now.getHours().toString().padStart(2, '0') +
+                                  now.getMinutes().toString().padStart(2, '0') +
+                                  now.getSeconds().toString().padStart(2, '0'); // e.g., "20250331143045"
+
+            // Add a logo (optional, replace with your logo URL)
+            const logoImage = new Image();
+            logoImage.src = './Picture6.png'; // Path to your local image
+            logoImage.onload = function () {
+                const canvas = document.createElement('canvas');
+                canvas.width = logoImage.width;
+                canvas.height = logoImage.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(logoImage, 0, 0);
+                const logoBase64 = canvas.toDataURL('image/png'); // Convert to Base64
+
+                // Add the logo to the PDF
+                doc.addImage(logoBase64, 'PNG', 10, 10, 70, 20);
+
+                // Add Receipt Header
+                doc.setFontSize(20);
+                doc.setTextColor(0, 0, 0);
+               // doc.text('Ghost Tech', 70, 20); // Centered header
+                doc.setFontSize(12);
+                doc.text(`Receipt No.: ${receiptNumber}`, 10, 40);
+                doc.text(`Date: ${dateString}`, 150, 40);
+
+                // Add Summary Section
+                doc.setFontSize(16);
+                doc.setTextColor(0, 0, 0);
+                doc.text('SUMMARY', 10, 60);
+
+                // Add Customer Details
+                doc.setFontSize(12);
+                doc.text('CUSTOMER NAME:', 10, 80);
+                doc.text(customerName, 60, 80);
+
+                doc.text('PAYMENT METHOD:', 10, 90);
+                doc.text(paymentMethod, 60, 90);
+
+                doc.text('AMOUNT PAID:', 10, 100);
+                doc.text(`GHC${amountPaid}`, 60, 100);
+
+                doc.text('BOOKING DETAILS:', 10, 110);
+                doc.text(bookingInfo, 60, 110, { maxWidth: 130 }); // Wrap text if it's too long
+
+                // Add Footer
+                doc.setFontSize(12);
+                doc.setTextColor(100);
+                doc.text('Thank you for booking with us!', 10, 140);
+                doc.text('If you have any questions, contact us at [EMAIL] or call at [PHONE]', 10, 150);
+
+                // Save the PDF
+                doc.save(`receipt_${receiptNumber}.pdf`);
+            };
+        }
+    </script>
+</body>
+</html>
