@@ -16,6 +16,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden; /* Prevent scrolling when popup is active */
         }
         h1 {
             text-align: center;
@@ -29,22 +30,27 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+            transition: filter 0.3s ease; /* Smooth blur transition */
+        }
+        form.blurred {
+            filter: blur(5px); /* Blur effect when popup is active */
+            pointer-events: none; /* Disable interactions with the form */
         }
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
         }
-        input {
-            width: 95%; /* Uniform width */
+        select, button {
+            width: 100%; /* Uniform width */
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
         }
-        select, button {
-            width: 100%; /* Uniform width */
+        input {
+            width: 95%; /* Uniform width */
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -70,6 +76,49 @@
         }
         button:active {
             transform: scale(0.95); /* Button click effect */
+        }
+
+        /* Custom Popup Styles */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            display: none; /* Hidden by default */
+            z-index: 1000;
+            animation: fadeIn 0.5s ease forwards;
+            max-width: 90%; /* Ensure the popup fits smaller screens */
+        }
+        .popup button {
+            background: linear-gradient(to right, #ff00ff, #ff1493);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .popup button:hover {
+            background: linear-gradient(to right, #ff1493, #ff00ff);
+        }
+
+        /* Fade-in animation for the popup */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
     </style>
 </head>
@@ -100,6 +149,17 @@
         <button type="submit">Generate Receipt</button>
     </form>
 
+    <!-- Custom Popup -->
+    <div class="popup" id="successPopup">
+        <p>Receipt sent successfully!</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <div class="popup" id="errorPopup">
+        <p>Failed to send receipt. Please try again.</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         // Initialize EmailJS
@@ -108,6 +168,16 @@
                 publicKey: 'hKShQgh_qV8dnGDrn'}); // Replace 'YOUR_USER_ID' with your EmailJS user ID
             console.log('EmailJS initialized:', emailjs);
 
+            // Format "Amount Paid" input to accept only positive integers with commas
+            const amountPaidInput = document.getElementById('amountPaid');
+            amountPaidInput.addEventListener('input', function(event) {
+                // Remove non-numeric characters
+                let value = event.target.value.replace(/[^0-9]/g, '');
+                // Format with commas
+                value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                event.target.value = value;
+            });
+
             document.getElementById('receiptForm').addEventListener('submit', function(event) {
                 event.preventDefault(); // Prevent the default form submission
 
@@ -115,7 +185,7 @@
                 const customerName = document.getElementById('customerName').value;
                 const bookingInfo = document.getElementById('bookingInfo').value;
                 const paymentMethod = document.getElementById('paymentMethod').value;
-                const amountPaid = document.getElementById('amountPaid').value;
+                const amountPaid = document.getElementById('amountPaid').value.replace(/,/g, ''); // Remove commas for processing
                 const email = document.getElementById('email').value;
 
                 // Get the current date and time
@@ -139,17 +209,33 @@
                 // Send the email using EmailJS
                 emailjs.send('service_i1zeb8n', 'template_hp4s49g', templateParams)
                     .then(function(response) {
-                        alert('Receipt sent successfully!');
                         console.log('SUCCESS!', response.status, response.text);
+
+                        // Show the success popup
+                        showPopup('successPopup');
 
                         // Clear the form after successful submission
                         document.getElementById('receiptForm').reset();
                     }, function(error) {
-                        alert('Failed to send receipt. Please try again.');
                         console.error('FAILED...', error);
+
+                        // Show the error popup
+                        showPopup('errorPopup');
                     });
             });
         })();
+
+        // Function to show a popup
+        function showPopup(popupId) {
+            document.getElementById('receiptForm').classList.add('blurred'); // Blur the form
+            document.getElementById(popupId).style.display = 'block';
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('receiptForm').classList.remove('blurred'); // Remove blur from the form
+            document.querySelectorAll('.popup').forEach(popup => popup.style.display = 'none');
+        }
     </script>
 </body>
 </html>
