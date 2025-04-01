@@ -7,43 +7,75 @@
     <link rel="icon" href="./tab_icon.png" type="image/x-icon">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #ff00ff, #ff1493); /* Fluorescent violet to fluorescent pink gradient */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
         }
         form {
+            background: rgba(255, 255, 255, 0.8); /* More transparent background */
+            color: #333;
             max-width: 400px;
-            margin: auto;
+            width: 100%;
             padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
         }
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
         }
-        input, select, button {
-            width: 100%;
-            padding: 8px;
+        input {
+            width: 95%; /* Uniform width */
+            padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        select, button {
+            width: 100%; /* Uniform width */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            border-color: #ff00ff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
         }
         button {
-            background-color: #4CAF50;
-            color: white;
+            background: linear-gradient(to right, #ff00ff, #ff1493); /* Fluorescent violet to fluorescent pink gradient */
+            color: #fff;
             border: none;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s ease, background 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background: linear-gradient(to right, #ff1493, #ff00ff); /* Reverse gradient on hover */
+        }
+        button:active {
+            transform: scale(0.95); /* Button click effect */
         }
     </style>
 </head>
 <body>
-    <h1>Receipt Form</h1>
     <form id="receiptForm">
+        <h1>Receipt Form</h1>
         <label for="customerName">Customer Name:</label>
         <input type="text" id="customerName" name="customerName" placeholder="Enter customer name" required>
 
@@ -109,6 +141,9 @@
                     .then(function(response) {
                         alert('Receipt sent successfully!');
                         console.log('SUCCESS!', response.status, response.text);
+
+                        // Clear the form after successful submission
+                        document.getElementById('receiptForm').reset();
                     }, function(error) {
                         alert('Failed to send receipt. Please try again.');
                         console.error('FAILED...', error);
