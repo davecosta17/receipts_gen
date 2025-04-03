@@ -204,7 +204,8 @@
                     receipt_number: receiptNumber
                 };
 
-                console.log('Template Parameters:', templateParams);
+                // Uncomment the following line for debugging in non-production environments
+                // console.log('Template Parameters:', templateParams);
 
                 // Send the email using EmailJS
                 emailjs.send('service_i1zeb8n', 'template_hp4s49g', templateParams)
