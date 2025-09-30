@@ -13,6 +13,7 @@
             background: linear-gradient(to right, #ff00ff, #ff1493); /* Fluorescent violet to fluorescent pink gradient */
             color: #fff;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -78,6 +79,20 @@
             transform: scale(0.95); /* Button click effect */
         }
 
+        footer {
+            margin-top: 1rem;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: #0078d4;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: #005fa3;
+        }
         /* Custom Popup Styles */
         .popup {
             position: fixed;
@@ -160,7 +175,9 @@
         <p>Failed to send receipt. Please check the email.</p>
         <button onclick="closePopup()">Close</button>
     </div>
-
+    <footer>
+        <p style="text-align:center; margin-top:20px; color:#888;"><a href="./bill.html">Go to bill page</a></p>
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         // Initialize EmailJS
