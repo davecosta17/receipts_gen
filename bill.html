@@ -163,11 +163,11 @@
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const acNum = document.getElementById('acNum').value;
-            const amount = Number(acNum) * 20;
+            //const amount = Number(acNum) * 20;
             const templateParams = {
                     customer_name: name,
                     to_email: email,
-                    amount: amount;
+              //      amount: amount;
                 };
 
                     emailjs.send('service_i1zeb8n', 'template_4eim0bf', templateParams)
