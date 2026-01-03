@@ -164,11 +164,12 @@
             const email = document.getElementById('email').value;
             const acNum = document.getElementById('acNum').value;
             const plan = parseInt(acNum, 10);
+            const amount = Number(plan) * 20;
            
             const templateParams = {
                     customer_name: name,
                     to_email: email,
-                    amount: plan
+                    amount: amount
                 };
 
                 console.log(templateParams);
