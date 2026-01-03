@@ -127,6 +127,12 @@
             <label for="email">Email Address</label>
             <input type="email" id="email" name="email" required>
 
+            <label for="acNum">Number of accounts</label>
+            <select id="acNum" name="acNum" required>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+            </select>
+
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -154,10 +160,12 @@
 
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
-
+            const acNum = document.getElementById('acNum').value;
+            const amount = Number(acNum) * 20;
             const templateParams = {
                     customer_name: name,
                     to_email: email,
+                    amount: amount;
                 };
 
                     emailjs.send('service_i1zeb8n', 'template_4eim0bf', templateParams)
