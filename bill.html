@@ -171,6 +171,8 @@
                     amount: plan
                 };
 
+                console.log(templateParams);
+                
                     emailjs.send('service_i1zeb8n', 'template_4eim0bf', templateParams)
                     .then(function(response) {
                         console.log('SUCCESS!', response.status, response.text);
