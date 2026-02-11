@@ -36,7 +36,7 @@
         }
         input[type="text"],
         input[type="email"],
-        input[type="number"] {
+        #acNum {
             width: 100%;
             padding: 0.75rem;
             margin-bottom: 1.2rem;
@@ -48,7 +48,7 @@
         }
         input[type="text"]:focus,
         input[type="email"]:focus,
-        input[type="number"]:focus {
+        #acNum {
             border-color: #0078d4;
             outline: none;
             background: #fff;
@@ -132,6 +132,12 @@
             <label for="amount">Amount</label>
             <input type="number" name="amount id="amount" required>
 
+            <label for="acNum">Number of accounts</label>
+            <select id="acNum" name="acNum" required>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+            </select>
+
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -159,12 +165,18 @@
 
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
-
+            const acNum = document.getElementById('acNum').value;
+            const plan = parseInt(acNum, 10);
+            const amount = plan * 20;
+           
             const templateParams = {
                     customer_name: name,
                     to_email: email,
+                    amount: amount
                 };
 
+                console.log(templateParams);
+                
                     emailjs.send('service_i1zeb8n', 'template_4eim0bf', templateParams)
                     .then(function(response) {
                         console.log('SUCCESS!', response.status, response.text);
